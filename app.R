@@ -1,3 +1,4 @@
+library(rsconnect)
 library(shiny)
 library(bslib)
 
@@ -8,178 +9,141 @@ custom_theme <- bs_theme(
 # Define UI for application that draws a histogram
 ui <- page_fixed(
   theme = custom_theme,
-  card(markdown("Use the buttons below to **generate plots showing plausible data for the height** of 
+  card(markdown("Use the buttons below to **generate plots showing plausible data for the height** of: 
                   
-                  * 1st vs. 2nd graders
-                  * 1st vs. 4th graders
-                  * 1st vs. 7th graders")),
+                  * 1st vs. 3nd graders
+                  * 1st vs. 6th graders
+                  
+                When you are done, press continue.")),
   
   # Layout columns for side-by-side distribution cards
   layout_columns(
     card(
-      card_header("1st vs. 2nd graders", class = "bg-dark"),
+      card_header("1st vs. 3rd graders", class = "bg-dark"),
       card_body(
-          card(shinycssloaders::withSpinner(
-               plotOutput("plot1", 
-                         width = "300px",
-                         height = "300px"
-                         ),
-               color = "#8cd000"),
-               textOutput("overlap")
-               ),
+        card(
+          # Center the first plot
+          div(class = "d-flex justify-content-center",
+              shinycssloaders::withSpinner(
+                plotOutput("plot1", 
+                           width = "300px",
+                           height = "300px"),
+                color = "#8cd000"
+              )
+          ),
+          textOutput("overlap")
+        ),
         layout_columns(
-          actionButton("smaller_plot1",  icon("scale-balanced")),
-          actionButton("larger_plot1",  icon("scale-unbalanced"))
-          )
+          actionButton("smaller_plot1", icon("scale-unbalanced-flip")),
+          actionButton("larger_plot1", icon("scale-unbalanced"))
+        )
       )
     ),
+    card(
+      card_header("1st vs. 6th graders", class = "bg-dark"),
+      card_body(
         card(
-          card_header("1st vs. 4th graders", class = "bg-dark"),
-          card_body(
-            card(shinycssloaders::withSpinner(
-              plotOutput("plot2", 
-                         width = "300px",
-                         height = "300px"
-              ),
-              color = "#8cd000"),
-              textOutput("overlap")
-            ),
-            layout_columns(
-              actionButton("smaller_plot2",  icon("scale-balanced")),
-              actionButton("larger_plot2",  icon("scale-unbalanced")),
-            )
-          )
+          # Center the second plot
+          div(class = "d-flex justify-content-center",
+              shinycssloaders::withSpinner(
+                plotOutput("plot2", 
+                           width = "300px",
+                           height = "300px"),
+                color = "#8cd000"
+              )
+          ),
+          textOutput("overlap")
         ),
-            card(
-              card_header("1st vs. 7th graders", class = "bg-dark"),
-              card_body(
-                card(shinycssloaders::withSpinner(
-                  plotOutput("plot3", 
-                             width = "300px",
-                             height = "300px"
-                  ),
-                  color = "#8cd000"),
-                  textOutput("overlap")
-                ),
-                layout_columns(
-                  actionButton("smaller_plot3",  icon("scale-balanced")),
-                  actionButton("larger_plot3",  icon("scale-unbalanced"))),
-      )))
-)
+        layout_columns(
+          actionButton("smaller_plot2", icon("scale-unbalanced-flip")),
+          actionButton("larger_plot2", icon("scale-unbalanced"))
+        )
+      )
+    )
+  ))
 
 # Define server logic required to draw a histogram
 distribution_normal <- function(n,
-            mean = 0,
-            sd = 1,
-            random = FALSE,
-            ...){
-    if (random) {
-      stats::rnorm(n, mean, sd)
-    }
-    else {
-      stats::qnorm(stats::ppoints(n), mean, sd, ...)
-    }
+                                mean = 0,
+                                sd = 1,
+                                random = FALSE,
+                                ...){
+  if (random) {
+    stats::rnorm(n, mean, sd)
   }
+  else {
+    stats::qnorm(stats::ppoints(n), mean, sd, ...)
+  }
+}
 
 server <- function(input, output) {
   
   output$plot1 <- renderPlot({
     Firstgraders=distribution_normal(300, 45.4, 2.05)     
-    Secondgraders=distribution_normal(300, 45.4, 2.05) +
+    Thirdgraders=distribution_normal(300, 45.4, 2.35) +
       max(1*input$larger_plot1 - 1*input$smaller_plot1, 0)
     
     # First distribution
-    par(mfrow = c(2,1), mar=c(4,4,2,1))
+    par(mfrow = c(2,1), mar=c(2,1,1.5,1))
     hist(Firstgraders, 
          breaks=30, 
-         xlim=c(min(c(Firstgraders, Secondgraders)),max(c(Firstgraders, Secondgraders))), 
+         xlim=c(min(c(Firstgraders, Thirdgraders)),max(c(Firstgraders, Thirdgraders))), 
          ylab = "",
-         xlab = "[inches]",
+         xlab = "",
          col=rgb(1,0,0,0.5), 
          main="1st graders" )
     
     # Second with add=T to plot on top
-    hist(Secondgraders, 
+    hist(Thirdgraders, 
          breaks=30, 
-         xlim=c(min(c(Firstgraders, Secondgraders)),max(c(Firstgraders, Secondgraders))), 
+         xlim=c(min(c(Firstgraders, Thirdgraders)),max(c(Firstgraders, Thirdgraders))), 
          ylab = "",
-         xlab = "[inches]",
+         xlab = "",
          col=rgb(0,0,1,0.5),
-         main="2nd graders" )
+         main="3rd graders" )
   })
   
   cohend <- reactive({
     (mean(distribution_normal(300, 45.4, 2.05)) - 
        mean(distribution_normal(300, 45.4, 2.05) +
-              max(1*input$larger_plot1 - 1*input$smaller_plot1, 0)))/4
+              max(0.3*input$larger_plot1 - 0.3*input$smaller_plot1, 0)))/4
   })
   
   output$plot2 <- renderPlot({
-    Erstklässler=distribution_normal(300, 45.4, 2.05)     
-    Viertklässler=distribution_normal(300, 45.4, 2.05) +
+    Firstgraders=distribution_normal(300, 45.4, 2.05)     
+    Sixthgraders=distribution_normal(300, 45.4, 2.05) +
       max(1*input$larger_plot2 - 1*input$smaller_plot2, 0)
     
     # Third distribution
     par(mfrow = c(2,1), mar=c(2,1,1.5,1))
-    hist(Erstklässler, 
+    hist(Firstgraders, 
          breaks=30, 
-         xlim=c(min(c(Erstklässler, Viertklässler)),max(c(Erstklässler, Viertklässler))), 
+         xlim=c(min(c(Firstgraders, Sixthgraders)),max(c(Firstgraders, Sixthgraders))), 
          ylab = "",
          xlab = "",
          col=rgb(1,0,0,0.5), 
          main="1st graders")
     
     # Fourth with add=T to plot on top
-    hist(Viertklässler, 
+    hist(Sixthgraders, 
          breaks=30, 
-         xlim=c(min(c(Erstklässler, Viertklässler)),max(c(Erstklässler, Viertklässler))), 
+         xlim=c(min(c(Firstgraders, Sixthgraders)),max(c(Firstgraders, Sixthgraders))), 
          ylab = "",
          col=rgb(0,0,1,0.5),
-         main="4th graders")
+         main="6th graders")
   })
   
   cohend <- reactive({
     (mean(distribution_normal(300, 45.4, 2.05)) - 
        mean(distribution_normal(300, 45.4, 2.05) +
-              max(1*input$larger_plot2 - 1*input$smaller_plot2, 0)))/15
+              max(0.1*input$larger_plot2 - 0.1*input$smaller_plot2, 0)))/15
   })
   
-  output$plot3 <- renderPlot({
-    Erstklässler=distribution_normal(300, 45.4, 2.05)     
-    Siebtklässler=distribution_normal(300, 45.4, 2.05) +
-      max(1*input$larger_plot3 - 1*input$smaller_plot3, 0)
   
-  # Fifth distribution
-  par(mfrow = c(2,1), mar=c(2,1,1.5,1))
-  hist(Erstklässler, 
-       breaks=30, 
-       xlim=c(min(c(Erstklässler, Siebtklässler)),max(c(Erstklässler, Siebtklässler))), 
-       ylab = "",
-       xlab = "",
-       col=rgb(1,0,0,0.5), 
-       main="1st graders")
-  
-  # Sixth with add=T to plot on top
-  hist(Siebtklässler, 
-       breaks=30, 
-       xlim=c(min(c(Erstklässler, Siebtklässler)),max(c(Erstklässler, Siebtklässler))), 
-       ylab = "",
-       col=rgb(0,0,1,0.5),
-       main="7th graders")
-})
-
-cohend <- reactive({
-  (mean(distribution_normal(300, 45.4, 2.05)) - 
-     mean(distribution_normal(300, 45.4, 2.05) +
-            max(1*input$larger_plot3 - 1*input$smaller_plot3, 0)))/15
-})  
-  
-  
-  output$overlap <- renderText({
-    paste0("Aktuelle Überlappung = ", round(2*pnorm(-abs(cohend())/2), 2)*100, "%")
-  })
 }   
-
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+
+# deployApp("C:/Users/G7/Desktop/Florian/Florian/FuN-Kolleg 2023-2026/Study 2/R/Screening")
+
