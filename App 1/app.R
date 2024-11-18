@@ -1,3 +1,5 @@
+########## app for the training phase ##########
+
 library(rsconnect)
 library(shiny)
 library(bslib)
@@ -9,12 +11,12 @@ custom_theme <- bs_theme(
 # Define UI for application that draws a histogram
 ui <- page_fixed(
   theme = custom_theme,
-  card(markdown("Use the buttons below to **generate plots showing plausible data for the height** of: 
+  card(markdown("Use the buttons to **generate plots showing plausible data for the height** of: 
                   
                   * 1st vs. 3nd graders
                   * 1st vs. 6th graders
                   
-                When you are done, press continue.")),
+                When you are done, please press continue.")),
   
   # Layout columns for side-by-side distribution cards
   layout_columns(
@@ -144,6 +146,3 @@ server <- function(input, output) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)
-
-
-

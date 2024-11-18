@@ -1,3 +1,5 @@
+########## App for the estimation of effect magnitudes ##########
+
 library(shiny)
 library(bslib)
 library(rsconnect)
