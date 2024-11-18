@@ -145,5 +145,5 @@ server <- function(input, output) {
 # Run the application 
 shinyApp(ui = ui, server = server)
 
-# deployApp("C:/Users/G7/Desktop/Florian/Florian/FuN-Kolleg 2023-2026/Study 2/R/Screening")
+
 
