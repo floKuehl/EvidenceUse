@@ -83,13 +83,12 @@ server <- function(input, output) {
   cohend <- reactive({
     (mean(distribution_normal(300, 45.4, 2.05)) - 
        mean(distribution_normal(300, 45.4, 2.05) +
-              max(0.3*input$larger_plot1 - 0.3*input$smaller_plot1, 0)))/4
+              max(0.2*input$larger_plot1 - 0.2*input$smaller_plot1, 0)))/4
   })
   
 }   
 
 # Run the application 
 shinyApp(ui = ui, server = server)
-
 
 
