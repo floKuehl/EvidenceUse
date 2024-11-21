@@ -16,7 +16,7 @@ ui <- page_fixed(
                   * 1st vs. 3nd graders
                   * 1st vs. 6th graders
                   
-                When you are done, please press continue.")),
+                **Hint**: You can use the buttons several times. When you are done, please press continue.")),
   
   # Layout columns for side-by-side distribution cards
   layout_columns(
@@ -80,9 +80,10 @@ distribution_normal <- function(n,
 
 server <- function(input, output) {
   
+  # Plot 1: First vs Third Graders
   output$plot1 <- renderPlot({
     Firstgraders=distribution_normal(300, 45.4, 2.05)     
-    Thirdgraders=distribution_normal(300, 45.4, 2.35) +
+    Thirdgraders=distribution_normal(300, 45.4, 2.05) +
       max(1*input$larger_plot1 - 1*input$smaller_plot1, 0)
     
     # First distribution
@@ -93,7 +94,8 @@ server <- function(input, output) {
          ylab = "",
          xlab = "",
          col=rgb(1,0,0,0.5), 
-         main="1st graders" )
+         main="1st graders",
+         xaxt = "n" )
     
     # Second with add=T to plot on top
     hist(Thirdgraders, 
@@ -102,19 +104,23 @@ server <- function(input, output) {
          ylab = "",
          xlab = "",
          col=rgb(0,0,1,0.5),
-         main="3rd graders" )
+         main="3rd graders",
+         xaxt = "n" )
   })
   
-  cohend <- reactive({
-    (mean(distribution_normal(300, 45.4, 2.05)) - 
-       mean(distribution_normal(300, 45.4, 2.05) +
-              max(0.3*input$larger_plot1 - 0.3*input$smaller_plot1, 0)))/4
+  # Cohen's d for First vs Third Graders
+  cohend_1_3 <- reactive({
+    Firstgraders <- distribution_normal(300, 45.4, 2.05)
+    Thirdgraders <- distribution_normal(300, 45.4, 2.05) +
+      max(1 * input$larger_plot1 - 1 * input$smaller_plot1, 0)
+    (mean(Firstgraders) - mean(Thirdgraders)) / 4.1
   })
   
+  # Plot 2: First vs Sixth Graders
   output$plot2 <- renderPlot({
     Firstgraders=distribution_normal(300, 45.4, 2.05)     
     Sixthgraders=distribution_normal(300, 45.4, 2.05) +
-      max(1*input$larger_plot2 - 1*input$smaller_plot2, 0)
+      max(0.5*input$larger_plot2 - 0.5*input$smaller_plot2, 0)
     
     # Third distribution
     par(mfrow = c(2,1), mar=c(2,1,1.5,1))
@@ -124,7 +130,8 @@ server <- function(input, output) {
          ylab = "",
          xlab = "",
          col=rgb(1,0,0,0.5), 
-         main="1st graders")
+         main="1st graders",
+         xaxt = "n" )
     
     # Fourth with add=T to plot on top
     hist(Sixthgraders, 
@@ -132,13 +139,16 @@ server <- function(input, output) {
          xlim=c(min(c(Firstgraders, Sixthgraders)),max(c(Firstgraders, Sixthgraders))), 
          ylab = "",
          col=rgb(0,0,1,0.5),
-         main="6th graders")
+         main="6th graders",
+         xaxt = "n" )
   })
   
-  cohend <- reactive({
-    (mean(distribution_normal(300, 45.4, 2.05)) - 
-       mean(distribution_normal(300, 45.4, 2.05) +
-              max(0.1*input$larger_plot2 - 0.1*input$smaller_plot2, 0)))/15
+  # Cohen's d for First vs Sixth Graders
+  cohend_1_6 <- reactive({
+    Firstgraders <- distribution_normal(300, 45.4, 2.05)
+    Sixthgraders <- distribution_normal(300, 45.4, 2.05) +
+      max(1 * input$larger_plot2 - 1 * input$smaller_plot2, 0)
+    (mean(Firstgraders) - mean(Sixthgraders)) / 4.1
   })
   
   
