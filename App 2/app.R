@@ -12,10 +12,10 @@ custom_theme <- bs_theme(
 # Define UI for application that draws a histogram
 ui <- page_fixed(
   theme = custom_theme,
-    # Layout columns 
+    # Layout columns for the two plots
   layout_columns(
     card(
-      card_header("Intervention group vs. regular group", class = "bg-dark"),
+      card_header("Advance organizer group vs. regular group", class = "bg-dark"),
       card_body(
         card(
           # Center the first plot
@@ -55,8 +55,8 @@ server <- function(input, output) {
   
   output$plot1 <- renderPlot({
     Firstgraders=distribution_normal(300, 45.4, 2.05)     
-    Thirdgraders=distribution_normal(300, 45.4, 2.35) +
-      max(1*input$larger_plot1 - 1*input$smaller_plot1, 0)
+    Thirdgraders=distribution_normal(300, 45.4, 2.05) +
+      max(0.5*input$larger_plot1 - 0.5*input$smaller_plot1, 0)
     
     # First distribution
     par(mfrow = c(2,1), mar=c(2,1,1.5,1))
@@ -76,14 +76,14 @@ server <- function(input, output) {
          ylab = "",
          xlab = "",
          col=rgb(0,0,1,0.5),
-         main="Intervention group",
+         main="Advance organizer group",
          xaxt = "n")
   })
   
   cohend <- reactive({
     (mean(distribution_normal(300, 45.4, 2.05)) - 
        mean(distribution_normal(300, 45.4, 2.05) +
-              max(0.2*input$larger_plot1 - 0.2*input$smaller_plot1, 0)))/4
+              max(1*input$larger_plot1 - 1*input$smaller_plot1, 0)))/4
   })
   
 }   
