@@ -12,10 +12,10 @@ custom_theme <- bs_theme(
 # Define UI for application that draws a histogram
 ui <- page_fixed(
   theme = custom_theme,
-    # Layout columns for the two plots
+    # Layout columns 
   layout_columns(
     card(
-      card_header("Advance organizer group vs. regular group", class = "bg-dark"),
+      card_header("Workex examples group vs. regular group", class = "bg-dark"),
       card_body(
         card(
           # Center the first plot
@@ -76,7 +76,7 @@ server <- function(input, output) {
          ylab = "",
          xlab = "",
          col=rgb(0,0,1,0.5),
-         main="Advance organizer group",
+         main="Workex examples group",
          xaxt = "n")
   })
   
@@ -90,3 +90,5 @@ server <- function(input, output) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+
+
