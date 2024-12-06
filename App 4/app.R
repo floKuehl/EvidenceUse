@@ -83,7 +83,7 @@ server <- function(input, output) {
   cohend <- reactive({
     (mean(distribution_normal(300, 45.4, 2.05)) - 
        mean(distribution_normal(300, 45.4, 2.05) +
-              max(1*input$larger_plot1 - 1*input$smaller_plot1, 0)))/4
+              max(1*input$larger_plot1 - 1*input$smaller_plot1, 0)))/20 #each input changes cohen's d for 0,05
   })
   
 }   
