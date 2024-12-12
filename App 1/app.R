@@ -15,9 +15,8 @@ options(
   gargle_oauth_cache = ".secrets/"
 )
 
+
 gs4_auth()
-
-
 
 custom_theme <- bs_theme(
   font_scale = .8)
@@ -171,26 +170,20 @@ url_vars <- reactive({
 })
 
 ## Usage Logging #############################################################
-observeEvent(input$cohend_1_3, {
-  if(!is.null(input$cohend_1_3)){
+observeEvent(list(cohend_1_3(), cohend_1_6()), {
     sheet_append("1j-Dh0VrNSKBVenbMllVr6EASX3O9_DX_op0s95VXFpw",
-                 tibble(PID = ifelse(is.null(url_vars()$PID), 
-                                     "PID is missing", #to keep ncol constant
-                                     url_vars()$PID), # Person identifier from URL
+                 tibble(session_id = ifelse(is.null(url_vars()$session_id), 
+                                     "session_id is missing", #to keep ncol constant
+                                     url_vars()$session_id), # Person identifier from URL
                         task_name = "ES_estimation",
                         task_version = "screening",
+                        cohend_1_3 = cohend_1_3(),
+                        cohend_1_6 = cohend_1_6(),
                         time = Sys.time(),
-                        timezone = Sys.timezone(),
-                        new_task = as.numeric(input$new_task),
-                        reshuffle_task = as.numeric(input$reshuffle_task),
-                        result = case_when(is.na(input$cohend_1_3) ~ "false_solution",
-                                           round(input$cohend_1_3, 2) == correct_answers_task() ~ "correct solution",
-                                           T ~ "false_solution")),
+                        timezone = Sys.timezone()),
                  sheet = 1)
-  }
-})
+  })
 }
-
 
 
 # Run the application 
