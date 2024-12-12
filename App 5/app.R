@@ -30,8 +30,8 @@ ui <- page_fixed(
           textOutput("overlap")
         ),
         layout_columns(
-          actionButton("smaller_plot1", icon("scale-unbalanced-flip")),
-          actionButton("larger_plot1", icon("scale-unbalanced"))
+          actionButton("smaller_plot1", icon("minus")),
+          actionButton("larger_plot1", icon("plus"))
         )
       )
     ),
@@ -90,5 +90,3 @@ server <- function(input, output) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)
-
-deployApp("C:/Users/G7/Desktop/Florian/Florian/FuN-Kolleg 2023-2026/Study 2/EvidenceUse/App 5/")

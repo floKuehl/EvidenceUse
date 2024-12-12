@@ -30,8 +30,8 @@ ui <- page_fixed(
           textOutput("overlap")
         ),
         layout_columns(
-          actionButton("smaller_plot1", icon("scale-unbalanced-flip")),
-          actionButton("larger_plot1", icon("scale-unbalanced"))
+          actionButton("smaller_plot1", icon("minus")),
+          actionButton("larger_plot1", icon("plus"))
         )
       )
     ),

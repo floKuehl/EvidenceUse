@@ -3,10 +3,24 @@
 library(rsconnect)
 library(shiny)
 library(bslib)
+library(googledrive)
+library(googlesheets4)
+
+
+## Googlesheets Connection Setup ###############################################
+options(
+  # whenever there is one account token found, use the cached token
+  gargle_oauth_email = TRUE,
+  # specify auth tokens should be stored in a hidden directory ".secrets"
+  gargle_oauth_cache = ".secrets/"
+)
+
+gs4_auth()
+
+
 
 custom_theme <- bs_theme(
-  font_scale = .8
-)
+  font_scale = .8)
 
 # Define UI for application that draws a histogram
 ui <- page_fixed(
@@ -36,8 +50,8 @@ ui <- page_fixed(
           textOutput("overlap")
         ),
         layout_columns(
-          actionButton("smaller_plot1", icon("scale-unbalanced-flip")),
-          actionButton("larger_plot1", icon("scale-unbalanced"))
+          actionButton("smaller_plot1", icon("minus"),label = "decrease difference"),
+          actionButton("larger_plot1", icon("plus"), label = "increase difference")
         )
       )
     ),
@@ -57,8 +71,8 @@ ui <- page_fixed(
           textOutput("overlap")
         ),
         layout_columns(
-          actionButton("smaller_plot2", icon("scale-unbalanced-flip")),
-          actionButton("larger_plot2", icon("scale-unbalanced"))
+          actionButton("smaller_plot2", icon("minus"), label = "decrease difference"),
+          actionButton("larger_plot2", icon("plus"), label = "increase difference")
         )
       )
     )
@@ -78,7 +92,7 @@ distribution_normal <- function(n,
   }
 }
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   # Plot 1: First vs Third Graders
   output$plot1 <- renderPlot({
@@ -150,9 +164,34 @@ server <- function(input, output) {
       max(1 * input$larger_plot2 - 1 * input$smaller_plot2, 0)
     (mean(Firstgraders) - mean(Sixthgraders)) / 4.1
   })
-  
-  
-}   
+
+## URL Variable fetching #####################################################
+url_vars <- reactive({
+  parseQueryString(session$clientData$url_search)
+})
+
+## Usage Logging #############################################################
+observeEvent(input$cohend_1_3, {
+  if(!is.null(input$cohend_1_3)){
+    sheet_append("1j-Dh0VrNSKBVenbMllVr6EASX3O9_DX_op0s95VXFpw",
+                 tibble(PID = ifelse(is.null(url_vars()$PID), 
+                                     "PID is missing", #to keep ncol constant
+                                     url_vars()$PID), # Person identifier from URL
+                        task_name = "ES_estimation",
+                        task_version = "screening",
+                        time = Sys.time(),
+                        timezone = Sys.timezone(),
+                        new_task = as.numeric(input$new_task),
+                        reshuffle_task = as.numeric(input$reshuffle_task),
+                        result = case_when(is.na(input$cohend_1_3) ~ "false_solution",
+                                           round(input$cohend_1_3, 2) == correct_answers_task() ~ "correct solution",
+                                           T ~ "false_solution")),
+                 sheet = 1)
+  }
+})
+}
+
+
 
 # Run the application 
 shinyApp(ui = ui, server = server)
