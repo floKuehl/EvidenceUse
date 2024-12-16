@@ -5,18 +5,13 @@ library(shiny)
 library(bslib)
 library(googledrive)
 library(googlesheets4)
+library(tidyverse)
 
 
 ## Googlesheets Connection Setup ###############################################
-options(
-  # whenever there is one account token found, use the cached token
-  gargle_oauth_email = TRUE,
-  # specify auth tokens should be stored in a hidden directory ".secrets"
-  gargle_oauth_cache = ".secrets/"
-)
 
+gs4_auth(path = "key.json")
 
-gs4_auth()
 
 custom_theme <- bs_theme(
   font_scale = .8)
@@ -172,9 +167,9 @@ url_vars <- reactive({
 ## Usage Logging #############################################################
 observeEvent(list(cohend_1_3(), cohend_1_6()), {
     sheet_append("1j-Dh0VrNSKBVenbMllVr6EASX3O9_DX_op0s95VXFpw",
-                 tibble(session_id = ifelse(is.null(url_vars()$session_id), 
-                                     "session_id is missing", #to keep ncol constant
-                                     url_vars()$session_id), # Person identifier from URL
+                 tibble(PROLIFIC_PID = ifelse(is.null(url_vars()$PROLIFIC_PID), 
+                                     "code is missing", #to keep ncol constant
+                                     url_vars()$PROLIFIC_PID), # Person identifier from URL
                         task_name = "ES_estimation",
                         task_version = "screening",
                         cohend_1_3 = cohend_1_3(),
@@ -182,10 +177,12 @@ observeEvent(list(cohend_1_3(), cohend_1_6()), {
                         time = Sys.time(),
                         timezone = Sys.timezone()),
                  sheet = 1)
+  
+
   })
 }
 
 
+
 # Run the application 
 shinyApp(ui = ui, server = server)
-

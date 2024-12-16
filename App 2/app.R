@@ -3,7 +3,13 @@
 library(shiny)
 library(bslib)
 library(rsconnect)
+library(googledrive)
+library(googlesheets4)
+library(tidyverse)
 
+## Googlesheets Connection Setup ###############################################
+
+gs4_auth(path = "key.json")
 
 custom_theme <- bs_theme(
   font_scale = .8
@@ -51,7 +57,7 @@ distribution_normal <- function(n,
   }
 }
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   output$plot1 <- renderPlot({
     Firstgraders=distribution_normal(300, 45.4, 2.05)     
@@ -86,7 +92,28 @@ server <- function(input, output) {
               max(1*input$larger_plot1 - 1*input$smaller_plot1, 0)))/20 #each input changes cohen's d for 0,05
   })
   
-}   
+  ## URL Variable fetching #####################################################
+  url_vars <- reactive({
+    parseQueryString(session$clientData$url_search)
+  })
+  
+  ## Usage Logging #############################################################
+  observeEvent(cohend(), {
+    sheet_append("1j-Dh0VrNSKBVenbMllVr6EASX3O9_DX_op0s95VXFpw",
+                 tibble(PROLIFIC_PID = ifelse(is.null(url_vars()$PROLIFIC_PID), 
+                                              "code is missing", #to keep ncol constant
+                                              url_vars()$PROLIFIC_PID), # Person identifier from URL
+                        task_name = "ES_estimation",
+                        task_version = "main",
+                        cohend = cohend(),
+                        time = Sys.time(),
+                        timezone = Sys.timezone()),
+                 sheet = 2)
+    
+    
+  })
+}
+
 
 # Run the application 
 shinyApp(ui = ui, server = server)
